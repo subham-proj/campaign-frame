@@ -3,7 +3,7 @@ import { CameraOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
 
 const ImageOverlay = () => {
-  const frameImage = "/frames/frame1.png";
+  const frameImage = "/frames/frame2.jpeg";
 
   const [overlayImage, setOverlayImage] = useState(null);
   const canvasRef = useRef(null);
@@ -61,10 +61,10 @@ const ImageOverlay = () => {
       ctx.drawImage(baseImg, 0, 0);
 
       overlayImg.onload = () => {
-        const overlayWidth = 730;
-        const overlayHeight = 730;
-        const xPosition = 2048;
-        const yPosition = 1070;
+        const overlayWidth = 360;
+        const overlayHeight = 360;
+        const xPosition = 920;
+        const yPosition = 495;
 
         ctx.drawImage(
           overlayImg,
