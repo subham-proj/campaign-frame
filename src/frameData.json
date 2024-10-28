@@ -1,0 +1,24 @@
+{
+  "frames": [
+    {
+      "name": "frame1",
+      "link": "https://res.cloudinary.com/waitlistninja/image/upload/v1730138150/Election%20Campaign/frame3.jpg",
+      "dimension": {
+        "overlayWidth": 580,
+        "overlayHeight": 640,
+        "xPosition": 1570,
+        "yPosition": 1020
+      }
+    },
+    {
+        "name": "frame2",
+        "link": "https://res.cloudinary.com/waitlistninja/image/upload/v1730138148/Election%20Campaign/frame2.jpg",
+        "dimension": {
+          "overlayWidth": 360,
+          "overlayHeight": 360,
+          "xPosition": 920,
+          "yPosition": 495
+        }
+      }
+  ]
+}
