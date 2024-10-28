@@ -2,8 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { CameraOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
 
-const ImageOverlay = () => {
-  const frameImage = "/frames/frame2.jpeg";
+const ImageOverlay = ({ data }) => {
+  // const frameImage = "/frames/frame3.jpg";
+  let frameImage = data?.link;
 
   const [overlayImage, setOverlayImage] = useState(null);
   const canvasRef = useRef(null);
@@ -51,6 +52,9 @@ const ImageOverlay = () => {
     const baseImg = new Image();
     const overlayImg = new Image();
 
+    baseImg.crossOrigin = "anonymous";
+    overlayImg.crossOrigin = "anonymous";
+
     baseImg.src = frameImage;
     overlayImg.src = overlayImage;
 
@@ -61,10 +65,10 @@ const ImageOverlay = () => {
       ctx.drawImage(baseImg, 0, 0);
 
       overlayImg.onload = () => {
-        const overlayWidth = 360;
-        const overlayHeight = 360;
-        const xPosition = 920;
-        const yPosition = 495;
+        const overlayWidth = data.dimension.overlayWidth;
+        const overlayHeight = data.dimension.overlayHeight;
+        const xPosition = data.dimension.xPosition;
+        const yPosition = data.dimension.yPosition;
 
         ctx.drawImage(
           overlayImg,
@@ -103,7 +107,7 @@ const ImageOverlay = () => {
           </div>
         ) : (
           <div>
-            <img src={frameImage} alt="Base Preview" className="canvas-frame" />
+            <img src={frameImage} alt={data?.name} className="canvas-frame" />
           </div>
         )}
       </div>
