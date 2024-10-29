@@ -3,9 +3,7 @@ import { CameraOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Button, Upload, message } from "antd";
 
 const ImageOverlay = ({ data }) => {
-  // const frameImage = "/frames/frame3.jpg";
-  let frameImage = data?.link;
-
+  const frameImage = data?.link;
   const [overlayImage, setOverlayImage] = useState(null);
   const canvasRef = useRef(null);
 
@@ -20,9 +18,7 @@ const ImageOverlay = ({ data }) => {
         link.download = "awareness_frame.png";
 
         document.body.appendChild(link);
-
         link.click();
-
         document.body.removeChild(link);
         URL.revokeObjectURL(link.href);
       }
@@ -33,65 +29,70 @@ const ImageOverlay = ({ data }) => {
     const file = info.fileList[0].originFileObj;
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setOverlayImage(reader.result);
-      };
+      reader.onloadend = () => setOverlayImage(reader.result);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleOverlay = () => {
-    if (!overlayImage || !frameImage) {
-      message.error("Please upload both base and overlay images.");
+  const loadImage = (src) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = src;
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+    });
+  };
+
+  const drawBaseImage = async () => {
+    if (!frameImage) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    try {
+      const baseImg = await loadImage(frameImage);
+      canvas.width = baseImg.width;
+      canvas.height = baseImg.height;
+      ctx.drawImage(baseImg, 0, 0);
+    } catch {
+      message.error("Failed to load the base image.");
+    }
+  };
+
+  const drawOverlay = async () => {
+    if (!overlayImage) {
+      message.error("Please upload an overlay image.");
       return;
     }
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    const baseImg = new Image();
-    const overlayImg = new Image();
+    try {
+      const overlayImg = await loadImage(overlayImage);
 
-    baseImg.crossOrigin = "anonymous";
-    overlayImg.crossOrigin = "anonymous";
-
-    baseImg.src = frameImage;
-    overlayImg.src = overlayImage;
-
-    baseImg.onload = () => {
-      canvas.width = baseImg.width;
-      canvas.height = baseImg.height;
-
-      ctx.drawImage(baseImg, 0, 0);
-
-      overlayImg.onload = () => {
-        const overlayWidth = data.dimension.overlayWidth;
-        const overlayHeight = data.dimension.overlayHeight;
-        const xPosition = data.dimension.xPosition;
-        const yPosition = data.dimension.yPosition;
-
-        ctx.drawImage(
-          overlayImg,
-          xPosition,
-          yPosition,
-          overlayWidth,
-          overlayHeight
-        );
-      };
-
-      overlayImg.onerror = () => {
-        message.error("Failed to load the overlay image.");
-      };
-    };
-
-    baseImg.onerror = () => {
-      message.error("Failed to load the base image.");
-    };
+      const { overlayWidth, overlayHeight, xPosition, yPosition } =
+        data.dimension;
+      ctx.drawImage(
+        overlayImg,
+        xPosition,
+        yPosition,
+        overlayWidth,
+        overlayHeight
+      );
+    } catch {
+      message.error("Failed to load the overlay image.");
+    }
   };
 
   useEffect(() => {
+    drawBaseImage();
+  }, [frameImage]);
+
+  useEffect(() => {
     if (overlayImage) {
-      handleOverlay();
+      drawOverlay();
     }
   }, [overlayImage]);
 
@@ -101,15 +102,9 @@ const ImageOverlay = ({ data }) => {
         <div>
           <h2>Awareness Frame</h2>
         </div>
-        {overlayImage ? (
-          <div>
-            <canvas ref={canvasRef} className="canvas-frame"></canvas>
-          </div>
-        ) : (
-          <div>
-            <img src={frameImage} alt={data?.name} className="canvas-frame" />
-          </div>
-        )}
+        <div>
+          <canvas ref={canvasRef} className="canvas-frame"></canvas>
+        </div>
       </div>
 
       <div className="actions">
